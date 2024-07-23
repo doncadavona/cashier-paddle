@@ -45,17 +45,13 @@ trait ManagesCustomer
             $response = Cashier::api('POST', 'customers', $options)['data'];
         }
 
-        if (is_null($response['name'])) {
-            throw new LogicException("The Paddle customer [{$response['id']}] has no name. You may need to set the name of the customer in the Paddle dasbhboard.");
-        }
-
         if (Cashier::$customerModel::where('paddle_id', $response['id'])->exists()) {
             throw new LogicException("The Paddle customer [{$response['id']}] already exists in the database.");
         }
 
         $customer = $this->customer()->make();
         $customer->paddle_id = $response['id'];
-        $customer->name = $response['name'];
+        $customer->name = $response['name'] ?? '';
         $customer->email = $response['email'];
         $customer->trial_ends_at = $trialEndsAt;
         $customer->save();
